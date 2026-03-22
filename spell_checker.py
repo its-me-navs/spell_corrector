@@ -59,11 +59,8 @@ def correction(word):
 
 ###### unigram done, bigram below
 
-def prob_bigram(prev_word, cur_word):
-        if WORDS[prev_word]!=0:
-            bigram_prob = BIGRAMS[(prev_word, cur_word)] / WORDS[prev_word]
-            return bigram_prob if bigram_prob > 0 else prob(cur_word)
-        return prob(cur_word)
+def prob_bigram(prev_word, cur_word, V=len(WORDS)):
+        return (BIGRAMS[(prev_word, cur_word)]+1)/(WORDS[prev_word]+V)
 
 def correction_bigram(prev_word, cur_word):
     return max(candidates(cur_word), key=lambda x: prob_bigram(prev_word,x))
