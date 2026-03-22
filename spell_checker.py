@@ -54,16 +54,66 @@ def candidates(word):
     "Generate possible correct spellings of the word 'word' "
     return (known([word]) or known(edits1(word)) or known(edits2(word)) or [word])
 
-def correction(word):
-    return max(candidates(word), key=prob)
-
 ###### unigram done, bigram below
 
 def prob_bigram(prev_word, cur_word, V=len(WORDS)):
         return (BIGRAMS[(prev_word, cur_word)]+1)/(WORDS[prev_word]+V)
 
+######## - channel model - correct typos based on keyboard distance
+
+KEYBOARD={
+    'a':'qwsz', 'b':'vghn', 'c':'xdfv', 'd':'serfcx', 'e':'wsdr','f':'drtgvc', 'g':'ftyhbv', 'h':'gyujnb','i':'ujko', 'j':'huikmn', 
+    'l':'pok','m':'njk', 'n':'bhjm','o':'iklp','p':'ol','q':'aw','r':'edft','s':'awedxz','t':'rfgy','u':'yhji','v':'cfgb','w':'qase',
+    'x':'zsdc','y':'tghu','z':'asx'
+}
+
+def keyboard_distance(c1, c2):
+    if c1==c2:
+        return 0
+    elif c2 in KEYBOARD.get(c1):
+        return 1
+    return 2
+
+def edit_types(typed, candidate):
+    lt, lc=len(typed), len(candidate) 
+
+    if lt==lc:
+        diff=[(t,c) for t,c in zip(typed, candidate) if t!=c]
+        if len(diff)==2:
+            (a,b), (c,d)=diff
+            if a==d and b==c:
+                return 'transpose'
+        return 'replace'   
+    if lt==lc+1:
+        return 'delete'  
+    if lt==lc-1:
+        return 'insert'
+    return 'unknown'
+
+def channel_prob(typed, candidate):
+    if typed==candidate:
+        return 1.0
+    edit_type=edit_types(typed, candidate)
+    if edit_type=='transpose':
+        return 0.8
+    elif edit_type=='replace':
+        diffs=[(t,c) for t,c in zip(typed, candidate) if t!=c]
+        t_char, c_char=diffs[0]
+        dist=keyboard_distance(t_char, c_char)
+        return 0.6 if dist==1 else 0.2
+    elif edit_type=='insert':
+        return 0.4
+    elif edit_type=='delete':
+        return 0.3
+    return 0.1
+
+
+def correction(word):
+    return max(candidates(word), key=lambda x: prob(x)*channel_prob(word, x))
+
 def correction_bigram(prev_word, cur_word):
-    return max(candidates(cur_word), key=lambda x: prob_bigram(prev_word,x))
+    return max(candidates(cur_word), key=lambda x: prob_bigram(prev_word,x)*channel_prob(cur_word, x))
+
 
 def correct_sentence(sentence):
     word_list=sentence.split()
@@ -91,4 +141,3 @@ def check():
     sen=input("Enter a sentence to correct : ")
     print(correct_sentence(sen))
 
-check()
