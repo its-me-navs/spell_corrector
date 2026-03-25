@@ -140,4 +140,3 @@ def correct_sentence(sentence):
 def check():
     sen=input("Enter a sentence to correct : ")
     print(correct_sentence(sen))
-
