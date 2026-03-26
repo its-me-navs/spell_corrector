@@ -207,7 +207,6 @@
 
     <div class="buttons">
         <button id="correctBtn" onclick="correct()">Check Spelling</button>
-        <button onclick="feelingLucky()">I'm Feeling Lucky</button>
     </div>
 
     <div class="loader" id="loader">
@@ -263,19 +262,6 @@
                 btn.disabled = false;
                 loader.classList.remove("visible");
             }
-        }
-
-        function feelingLucky() {
-            const examples = [
-                "thi sentance is foll of erors",
-                "I recieve mansy leters fron my frinds",
-                "she speled the wrods wrng",
-                "the wheather is niec today"
-            ];
-            const pick = examples[Math.floor(Math.random() * examples.length)];
-            document.getElementById("input").value = pick;
-            handleInput();
-            correct();
         }
 
         function useCorrection() {
