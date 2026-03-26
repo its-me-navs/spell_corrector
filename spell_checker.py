@@ -15,7 +15,18 @@ try:
     nltk.data.find('corpora/brown')
 except LookupError:
     nltk.download('brown')
-from nltk.corpus import brown
+
+try:
+    nltk.data.find('corpora/gutenberg')
+except LookupError:
+    nltk.download('gutenberg')
+
+try:
+    nltk.data.find('corpora/webtext')
+except LookupError:
+    nltk.download('webtext')
+
+from nltk.corpus import brown, gutenberg, webtext
 
 def words(text): 
     return re.findall(r'\w+', text.lower())
@@ -35,7 +46,7 @@ def edits2(word):
     return (e2 for e1 in edits1(word) for e2 in edits1(e1))  # creates a generator - () - produces output on demand, not all at once
 
 def create_words():
-    word_list=words(open("big.txt").read()) + [w.lower() for w in brown.words()]
+    word_list=words(open("big.txt").read()) + [w.lower() for w in brown.words()] + [w.lower() for w in gutenberg.words()] + [w.lower() for w in webtext.words()]
     WORDS=Counter(word_list)
     BIGRAMS=Counter(zip(word_list, word_list[1:]))
     return WORDS, BIGRAMS
